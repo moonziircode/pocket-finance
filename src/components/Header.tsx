@@ -6,13 +6,15 @@ interface HeaderProps {
   isSyncing: boolean;
   onRefresh: () => void;
   pendingCount?: number;
+  onSyncQueue?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   isOnline,
   isSyncing,
   onRefresh,
-  pendingCount = 0
+  pendingCount = 0,
+  onSyncQueue
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-4 pt-3 pb-3 safe-top">
@@ -36,9 +38,14 @@ export const Header: React.FC<HeaderProps> = ({
                 </>
               )}
               {pendingCount > 0 && (
-                <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full font-medium">
-                  {pendingCount} antrean
-                </span>
+                <button
+                  onClick={onSyncQueue || onRefresh}
+                  className="text-[10px] bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-2 py-0.5 rounded-full font-medium transition-all active:scale-95 flex items-center space-x-1"
+                  title="Klik untuk menyinkronkan antrean sekarang"
+                >
+                  <span>{pendingCount} antrean</span>
+                  <span className="underline text-[9px]">sinkron</span>
+                </button>
               )}
             </div>
           </div>

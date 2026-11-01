@@ -9,9 +9,12 @@ export default async function handler(req: any, res: any) {
 
     const payload = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     const bodyToSend = {
-      action: 'create',
+      action: 'createTransaction',
+      key: API_SECRET,
       secret: API_SECRET,
-      ...payload
+      ...payload,
+      // Normalize note/description for Apps Script
+      note: payload.description || payload.note || payload.keterangan || '-'
     };
 
     const response = await fetch(APPS_SCRIPT_URL, {

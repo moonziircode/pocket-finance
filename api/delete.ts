@@ -9,9 +9,11 @@ export default async function handler(req: any, res: any) {
 
     const payload = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     const bodyToSend = {
-      action: 'delete',
+      action: 'deleteTransaction',
+      key: API_SECRET,
       secret: API_SECRET,
-      ...payload
+      transactionId: payload.transactionId || payload.id,
+      id: payload.transactionId || payload.id
     };
 
     const response = await fetch(APPS_SCRIPT_URL, {

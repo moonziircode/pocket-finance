@@ -5,6 +5,7 @@ import { HomePage } from './pages/HomePage';
 import { InputPage } from './pages/InputPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { QuickExpenseConfirmModal } from './components/QuickExpenseConfirmModal';
 import { 
   fetchMetadata, 
   fetchRecentTransactions, 
@@ -12,6 +13,7 @@ import {
   deleteTransaction, 
   processOfflineQueue, 
   getOfflineQueue,
+  clearOfflineQueue,
   formatRupiahShort
 } from './services/api';
 import type { 
@@ -31,7 +33,11 @@ export function App() {
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   const [pendingCount, setPendingCount] = useState<number>(0);
   
-  // Active special mode or preset being configured
+  // Selected preset for confirmation modal (Revisi: Konfirmasi ulang sebelum simpan)
+  const [selectedPresetForConfirm, setSelectedPresetForConfirm] = useState<QuickPreset | null>(null);
+  const [isConfirmSubmitting, setIsConfirmSubmitting] = useState<boolean>(false);
+
+  // Active special mode or preset being configured for full input page
   const [specialMode, setSpecialMode] = useState<SpecialModeType>('normal');
   const [activePreset, setActivePreset] = useState<QuickPreset | null>(null);
 
@@ -65,15 +71,14 @@ export function App() {
     };
   }, [showToast]);
 
-  // Load initial data
+  // Load initial data & sync offline queue
   const syncData = useCallback(async (force = false) => {
     setIsSyncing(true);
     try {
-      // Process offline queue first if online
       if (navigator.onLine) {
         const processed = await processOfflineQueue();
         if (processed > 0) {
-          showToast(`${processed} transaksi offline berhasil disinkronkan!`, 'success');
+          showToast(`${processed} transaksi berhasil disinkronkan ke Sheets!`, 'success');
         }
       }
 
@@ -86,6 +91,7 @@ export function App() {
 
       setMetadata(metaData);
       setRecentTransactions(recentData);
+      setPendingCount(getOfflineQueue().length);
     } catch (err: any) {
       console.warn('Sync warning:', err);
     } finally {
@@ -98,34 +104,59 @@ export function App() {
     syncData(false);
   }, [syncData]);
 
-  // Handle 1-Tap Quick Preset Click
-  const handleSelectPreset = async (preset: QuickPreset, autoSubmit: boolean) => {
-    if (autoSubmit) {
-      // 1-Tap Save directly!
-      showToast(`⚡ Menyimpan ${preset.name} (Rp ${formatRupiahShort(preset.amount)})...`, 'info');
-
-      const result = await saveTransaction({
-        date: new Date().toISOString().split('T')[0],
-        type: 'Pengeluaran',
-        category: preset.category,
-        account: preset.account,
-        amount: preset.amount,
-        description: preset.defaultDesc
-      });
-
-      if (result.success) {
-        showToast(`✅ ${preset.name} Rp ${formatRupiahShort(preset.amount)} tercatat!`, 'success');
-        // Refresh recent list
-        fetchRecentTransactions(15, true).then(setRecentTransactions).catch(() => {});
-        fetchMetadata(true).then(setMetadata).catch(() => {});
-      } else {
-        showToast(`❌ Gagal menyimpan ${preset.name}`, 'error');
-      }
+  // Handle manual queue sync or clear
+  const handleSyncOrClearQueue = async () => {
+    setIsSyncing(true);
+    showToast('Menyinkronkan antrean transaksi...', 'info');
+    const processed = await processOfflineQueue();
+    if (processed > 0) {
+      showToast(`${processed} transaksi berhasil masuk Sheets!`, 'success');
     } else {
-      // Open in Input Tab
-      setActivePreset(preset);
-      setSpecialMode('normal');
-      setActiveTab('input');
+      // If queue items failed due to old format, clear them
+      clearOfflineQueue();
+      showToast('Antrean berhasil dibersihkan', 'info');
+    }
+    setPendingCount(getOfflineQueue().length);
+    syncData(true);
+  };
+
+  // Open confirmation modal on Quick Preset Click
+  const handleSelectPreset = (preset: QuickPreset) => {
+    setSelectedPresetForConfirm(preset);
+  };
+
+  // Confirm and save from the confirmation modal
+  const handleConfirmQuickExpense = async (data: {
+    amount: number;
+    account: string;
+    description: string;
+    date: string;
+    category: string;
+    type: 'Pengeluaran';
+  }) => {
+    setIsConfirmSubmitting(true);
+    showToast(`⚡ Menyimpan ${data.description} (Rp ${formatRupiahShort(data.amount)})...`, 'info');
+
+    const result = await saveTransaction({
+      date: data.date,
+      type: 'Pengeluaran',
+      category: data.category,
+      account: data.account,
+      amount: data.amount,
+      description: data.description
+    });
+
+    setIsConfirmSubmitting(false);
+
+    if (result.success) {
+      showToast(`✅ ${data.description} Rp ${formatRupiahShort(data.amount)} tercatat di Sheets!`, 'success');
+      setSelectedPresetForConfirm(null);
+      setPendingCount(getOfflineQueue().length);
+      // Immediate background refresh
+      fetchRecentTransactions(15, true).then(setRecentTransactions).catch(() => {});
+      fetchMetadata(true).then(setMetadata).catch(() => {});
+    } else {
+      showToast(`❌ Gagal menyimpan: ${result.error || 'Coba lagi'}`, 'error');
     }
   };
 
@@ -181,7 +212,8 @@ export function App() {
   }): Promise<boolean> => {
     const result = await saveTransaction(txData);
     if (result.success) {
-      showToast(`✅ ${txData.category} Rp ${formatRupiahShort(txData.amount)} tercatat!`, 'success');
+      showToast(`✅ ${txData.category} Rp ${formatRupiahShort(txData.amount)} tercatat di Sheets!`, 'success');
+      setPendingCount(getOfflineQueue().length);
       fetchRecentTransactions(15, true).then(setRecentTransactions).catch(() => {});
       fetchMetadata(true).then(setMetadata).catch(() => {});
       // Return to home tab
@@ -205,6 +237,7 @@ export function App() {
         isSyncing={isSyncing}
         onRefresh={() => syncData(true)}
         pendingCount={pendingCount}
+        onSyncQueue={handleSyncOrClearQueue}
       />
 
       {/* Floating Toast Notification */}
@@ -268,6 +301,17 @@ export function App() {
           />
         )}
       </main>
+
+      {/* Quick Expense Confirmation Modal / Bottom Sheet */}
+      {selectedPresetForConfirm && (
+        <QuickExpenseConfirmModal
+          preset={selectedPresetForConfirm}
+          accounts={metadata?.accounts ?? []}
+          onConfirm={handleConfirmQuickExpense}
+          onClose={() => setSelectedPresetForConfirm(null)}
+          isSubmitting={isConfirmSubmitting}
+        />
+      )}
 
       {/* Bottom Navigation Bar */}
       <BottomNav

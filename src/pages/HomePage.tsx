@@ -15,7 +15,7 @@ interface HomePageProps {
   metadata: MetadataResponse | null;
   recentTransactions: Transaction[];
   isLoading: boolean;
-  onSelectPreset: (preset: QuickPreset, autoSubmit: boolean) => void;
+  onSelectPreset: (preset: QuickPreset) => void;
   onSelectSpecialMode: (mode: SpecialModeType) => void;
   onRepeatTransaction: (tx: Transaction) => void;
   onDeleteTransaction: (id: string) => Promise<boolean>;
@@ -37,7 +37,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       {/* KPI Cards */}
       <DashboardKPI metrics={metadata?.dashboard ?? null} isLoading={isLoading} />
 
-      {/* 1-Tap Quick Expense Grid */}
+      {/* Quick Expense Grid */}
       <QuickExpenseGrid onSelectPreset={onSelectPreset} />
 
       {/* Special Modes (Audy / Pinjamkan / Traktir) */}

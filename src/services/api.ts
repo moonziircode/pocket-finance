@@ -109,6 +109,14 @@ export function saveOfflineQueue(queue: PendingQueueItem[]) {
   }
 }
 
+export function clearOfflineQueue() {
+  try {
+    localStorage.removeItem(STORAGE_KEYS.QUEUE);
+  } catch (e) {
+    console.error('Failed to clear queue', e);
+  }
+}
+
 // Fetch Metadata
 export async function fetchMetadata(force = false): Promise<MetadataResponse> {
   const cached = getCachedMetadata();
