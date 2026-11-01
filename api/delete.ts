@@ -1,5 +1,4 @@
-const APPS_SCRIPT_URL = process.env.APPS_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbyHYFmxVNwq3Lf5whBYFgFp_y5yAPZ8cEknfS7i9hDxZdXUwlL-9wYUVWzj6m89ZGsn/exec';
-const API_SECRET = process.env.API_SECRET || 'POCKET_FINANCE_SECRET_2026';
+import { APPS_SCRIPT_URL, API_SECRET } from './_config';
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
