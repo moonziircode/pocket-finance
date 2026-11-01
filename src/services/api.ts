@@ -1,7 +1,8 @@
 import type { 
   MetadataResponse, 
   Transaction, 
-  PendingQueueItem 
+  PendingQueueItem,
+  BudgetSummaryItem
 } from '../types';
 
 const STORAGE_KEYS = {
