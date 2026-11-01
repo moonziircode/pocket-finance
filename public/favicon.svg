@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+    <linearGradient id="primary" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#6366F1" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background rounded squircle -->
+  <rect width="512" height="512" rx="128" fill="url(#bg)" />
+
+  <!-- Inner glowing border -->
+  <rect x="8" y="8" width="496" height="496" rx="120" fill="none" stroke="#1E293B" stroke-width="4" />
+
+  <!-- Wallet Base -->
+  <rect x="110" y="160" width="292" height="210" rx="40" fill="url(#primary)" filter="url(#glow)" />
+  
+  <!-- Flap overlay -->
+  <rect x="270" y="235" width="140" height="70" rx="24" fill="#064E3B" stroke="#34D399" stroke-width="4" />
+  <circle cx="310" cy="270" r="14" fill="#FBBF24" stroke="#F59E0B" stroke-width="4" />
+
+  <!-- Coin -->
+  <circle cx="210" cy="150" r="42" fill="url(#accent)" />
+  <text x="210" y="163" font-family="-apple-system, system-ui, sans-serif" font-weight="900" font-size="34" fill="#FFFFFF" text-anchor="middle">Rp</text>
+</svg>
