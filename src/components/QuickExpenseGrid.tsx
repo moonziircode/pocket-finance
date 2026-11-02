@@ -1,5 +1,5 @@
 import React from 'react';
-import { Coffee, Utensils, Fuel, CircleParking, Wifi, Users, Zap } from 'lucide-react';
+import { Coffee, Utensils, Fuel, CircleParking, Wifi, Users, Cigarette, Zap } from 'lucide-react';
 import { formatRupiahShort } from '../services/api';
 
 export interface QuickPreset {
@@ -80,6 +80,17 @@ export const DEFAULT_PRESETS: QuickPreset[] = [
     color: 'text-purple-400',
     bgGradient: 'from-purple-500/10 to-purple-900/10 border-purple-500/30 hover:border-purple-400/50',
     defaultDesc: 'Nongkrong santai'
+  },
+  {
+    id: 'rokok',
+    name: 'Rokok',
+    category: 'Rokok',
+    account: 'Seabank',
+    amount: 5000,
+    icon: Cigarette,
+    color: 'text-orange-400',
+    bgGradient: 'from-orange-500/10 to-orange-900/10 border-orange-500/30 hover:border-orange-400/50',
+    defaultDesc: 'Rokok'
   }
 ];
 
@@ -110,7 +121,7 @@ export const QuickExpenseGrid: React.FC<QuickExpenseGridProps> = ({
         <span className="text-[10px] text-slate-400">Pilih untuk cek & konfirmasi</span>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
         {DEFAULT_PRESETS.map((preset) => {
           const Icon = preset.icon;
 

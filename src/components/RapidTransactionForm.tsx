@@ -115,7 +115,7 @@ export const RapidTransactionForm: React.FC<RapidTransactionFormProps> = ({
     } else {
       categoryChoices = allCategories.length > 0 ? allCategories : [
         'Makan dan minum', 'Bensin', 'Parkir dan tol', 'Pulsa dan paket data', 
-        'Nongkrong', 'Tabungan', 'Dana darurat', 'Belanja bahan makanan', 
+        'Nongkrong', 'Tabungan', 'Dana darurat', 'Rokok', 'Belanja bahan makanan', 
         'Kebutuhan rumah', 'Streaming', 'Pakaian', 'Kesehatan'
       ];
     }
